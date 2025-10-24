@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #949191;
+  --foreground: #ffffff;
 }
 
 @theme inline {
@@ -14,7 +14,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #949191;
     --foreground: #ededed;
   }
 }
@@ -24,3 +24,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.swal2-popup {
+  border-radius: 12px !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+.swal2-confirm {
+  background-color: #0d9488 !important; /* teal-600 */
+}
+
