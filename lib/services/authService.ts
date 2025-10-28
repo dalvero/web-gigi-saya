@@ -7,9 +7,8 @@ import {
   Students,
 } from "@/lib/types/auth";
 
-let currentStudentNISN: string | null = null; // MENYIMPAN NISN SISWA YANG LOGIN
+let currentStudentNISN: string | null = null; 
 
-// SUPABASE AKAN DI-LOAD SECARA DINAMIS HANYA DI CLIENT RUNTIME
 async function getSupabase(): Promise<SupabaseClient> {
   // Jika di server (SSR / build di Vercel)
   if (typeof window === "undefined") {
@@ -20,7 +19,6 @@ async function getSupabase(): Promise<SupabaseClient> {
     return createClient(url, key);
   }
 
-  // Client-side (browser)
   const { getSupabaseClient } = await import("@/lib/supabaseClient");
   const supabase = getSupabaseClient();
   if (!supabase) {

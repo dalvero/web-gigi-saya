@@ -1,4 +1,3 @@
-// /lib/supabaseClient.ts
 "use client"
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
@@ -6,14 +5,15 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 let supabase: SupabaseClient | null = null;
 
 /**
+ * getSupabaseClient()
+ * ----------------------------
  * Kembalikan Supabase client jika dijalankan di client (browser).
  * - Jika dipanggil di server / saat build, fungsi ini mengembalikan null.
  * - Inisialisasi hanya dilakukan sekali saat runtime client.
  */
 export function getSupabaseClient(): SupabaseClient | null {
-  if (typeof window === "undefined") {
-    // Jangan inisialisasi di server / build
-    return null;
+  if (typeof window === "undefined") {    
+    return null; // JANGAN INISIALISASI DI SERVER / BUILD
   }
 
   if (supabase) return supabase;

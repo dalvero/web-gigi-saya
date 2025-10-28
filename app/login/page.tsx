@@ -1,4 +1,6 @@
 "use client";
+import Button from "@/components/Button";
+import InputField from "@/components/InputField";
 import { authService } from "@/lib/services/authService";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +12,13 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /**
+   * handleLogin()
+   * ----------------------------
+   * Menangani proses login menggunakan NISN dan password sekolah.
+   * 
+   * @param e - Event form submit.
+   */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -60,8 +69,8 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <h1 className="text-1xl font-semibold pl-3">NISN</h1>
-        <input
+        <InputField 
+          label = "NISN"
           type="text"
           placeholder="NISN"
           value={nisn}
@@ -69,24 +78,24 @@ export default function LoginPage() {
           className="w-full mb-4 px-4 py-3 rounded-3xl bg-gray-300 focus:outline-emerald-800 transition-all focus:bg-white"
         />
 
-        <h1 className="text-1xl font-semibold pl-3">Password Sekolah</h1>
-        <input
+        <InputField 
+          label = "Password Sekolah"
           type="password"
           placeholder="Password Sekolah"
           value={password_sekolah}
           onChange={(e) => setPasswordSekolah(e.target.value)}
-          className="w-full mb-8 px-4 py-3 rounded-3xl bg-gray-300 focus:outline-emerald-800 transition-all focus:bg-white"
+          className="w-full mb-4 px-4 py-3 rounded-3xl bg-gray-300 focus:outline-emerald-800 transition-all focus:bg-white"
         />
 
         {errorMsg && <p className="text-red-500 text-center mb-4">{errorMsg}</p>}
-        <button
+        <Button
+          text={loading ? "Memproses..." : "Masuk"}
           type="submit"
-          className={`w-full text-1xl font-semibold text-white py-3 rounded-2xl transition-all cursor-pointer 
-            ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-emerald-800 hover:bg-emerald-400'}`}
-          disabled={loading}
-        >
-          {loading ? "Memproses..." : "Masuk"}
-        </button>
+          variant="primary"          
+          width="w-full"
+          disabled={loading}          
+          loading={loading}
+        />
       </form>
     </div>
   );

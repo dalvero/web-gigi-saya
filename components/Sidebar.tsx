@@ -25,7 +25,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   const menuItems = [
     { icon: <LayoutDashboard />, label: "Dashboard", path: "/admin/dashboard" },
     { icon: <User />, label: "Users", path: "/admin/dashboard/users" },
-    { icon: <FileText />, label: "Artikel", path: "/dashboard/artikel" },
+    { icon: <FileText />, label: "Artikel", path: "/admin/dashboard/artikel" },
     { icon: <School />, label: "Schools", path: "/admin/dashboard/schools" },
     { icon: <BookUser />, label: "Students", path: "/admin/dashboard/students" },
     { icon: <Gift />, label: "Redeem", path: "/dashboard/redeem" },

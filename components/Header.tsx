@@ -1,18 +1,22 @@
+"use client"
+import { Menu, Settings } from "lucide-react";
+
 type HeaderProps = {
-  name: string;
+  greeting: string;
+  studentName: string;
 };
 
-export default function Header({ name }: HeaderProps) {
+export default function Header({ greeting, studentName }: HeaderProps) {
   return (
-    <header className="flex justify-between items-center px-5 py-4 bg-primary text-white rounded-b-2xl shadow-md">
-      <div>
-        <h1 className="text-lg font-semibold">Selamat pagi,</h1>
-        <p className="text-xl font-bold">{name}</p>
-      </div>
-      <div className="flex gap-3">
-        <div className="w-8 h-8 bg-white rounded-full" />
-        <div className="w-8 h-8 bg-white rounded-full" />
-      </div>
+    <header className="flex items-center justify-between mt-4 mb-4">
+        <div>
+          <p className="text-sm text-black">{greeting},</p>
+          <h1 className="text-lg text-black font-semibold text-primary">{studentName}</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <Settings className="text-black cursor-pointer" size={20} />
+          <Menu className="cursor-pointer text-black" size={24} />
+        </div>
     </header>
   );
 }
