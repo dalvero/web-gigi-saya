@@ -7,7 +7,15 @@ import {
   Students,
 } from "@/lib/types/auth";
 
-let currentStudentNISN: string | null = null; 
+/*
+ * currentStudentNISN
+ * ----------------------------
+ * Variabel ini menyimpan NISN siswa yang sedang login.
+ * Nilainya diambil dari localStorage di browser, atau null di server.
+ */
+let currentStudentNISN: string | null = 
+  typeof window !== "undefined" ? localStorage.getItem("currentStudentNISN") : null;
+
 
 async function getSupabase(): Promise<SupabaseClient> {
   // Jika di server (SSR / build di Vercel)
@@ -81,11 +89,9 @@ export const authService = {
       throw new Error("NISN tidak ditemukan");
     }
 
-    // SIMPAN NISN SISWA YANG LOGIN
     currentStudentNISN = nisn;
-
-    if (!student.sekolah_id) {
-      throw new Error("Siswa belum memiliki sekolah terkait");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("currentStudentNISN", nisn);
     }
 
     // AMBIL DATA SEKOLAH BERDASARKAN sekolah_id
@@ -112,9 +118,12 @@ export const authService = {
    * Mengambil data siswa yang sedang login berdasarkan NISN terakhir.
    */
   async getCurrentStudents(): Promise<Students | null> {
+    if (!currentStudentNISN && typeof window !== "undefined") {
+      currentStudentNISN = localStorage.getItem("currentStudentNISN");
+    }
     if (!currentStudentNISN) return null;
-    const supabase = await getSupabase();
 
+    const supabase = await getSupabase();
     const { data, error } = await supabase
       .from("students")
       .select("*")
@@ -125,11 +134,15 @@ export const authService = {
     return data as Students;
   },
 
+
   /**
    * Logout siswa (hapus NISN tersimpan).
    */
   logoutStudent() {
     currentStudentNISN = null;
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("currentStudentNISN");
+    }
   },
 
   /**

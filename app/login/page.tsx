@@ -37,6 +37,16 @@ export default function LoginPage() {
         throw new Error("Data siswa tidak ditemukan.");
       }
 
+      // KETIKA SUDAH LOGIN, HAPUS FOCUS DARI INPUT
+      if (typeof window !== "undefined") {
+        const active = document.activeElement as HTMLElement | null;
+        if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {
+          active.blur(); // hilangkan fokus agar keyboard menutup
+        }
+        
+        window.scrollTo(0, 0);
+      }
+
       // REDIRECT KE HOME
       router.push("/home");
     } catch (err) {
