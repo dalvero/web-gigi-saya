@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Search, Edit, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { studentService } from "@/lib/services/studentService";
 import { schoolService } from "@/lib/services/schoolService";
-import { Student } from "@/lib/types/students";
+import { Students } from "@/lib/types/students";
 import { School } from "@/lib/types/schools";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";

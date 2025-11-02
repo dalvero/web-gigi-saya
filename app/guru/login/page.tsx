@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
       const currentUser = await authService.getCurrentUser();
 
       // VALIDASI ROLE
-      if (!currentUser || currentUser.role !== "guru") {
+      if (!currentUser || currentUser.role !== "teacher") {
         throw new Error("Akses ditolak. Hanya Guru yang dapat login di sini.");
       }
 
