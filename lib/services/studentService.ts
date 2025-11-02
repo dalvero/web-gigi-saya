@@ -33,11 +33,30 @@ export const studentService = {
    * 
    * @param student - Data siswa yang akan ditambahkan, tidak termasuk `id` dan `created_at`.
    */
-  async add(student: Omit<Student, "id" | "created_at">): Promise<void> {
-      const supabase = getSupabaseClient();
-      if (!supabase) throw new Error("Supabase client not initialized.");
-      const { error } = await supabase.from("students").insert([student]);
-      if (error) throw error;
+  async add(student: Omit<Student, "created_at">): Promise<void> {
+    const supabase = getSupabaseClient();
+    if (!supabase) throw new Error("Supabase client not initialized.");
+    const { error } = await supabase.from("students").insert([student]);
+    if (error) throw error;
+
+    // ADD KE TABEL USERS AGAR TETAP SINKRON
+    const { error: usersError } = await supabase.from("users").insert([
+      {
+        id: student.id,
+        username: `${student.nama_depan}_${student.nama_belakang}`.toLowerCase(),
+        email: "student@gmail.com",
+        address: student.address || null,
+        city: student.city || null,
+        role: "student",
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (usersError)
+      throw new Error(
+        `Gagal menyimpan data ke tabel users: ${usersError.message}`        
+      );
+      console.log(`Gagal menyimpan data ke tabel users: error`);
   },
 
   /**

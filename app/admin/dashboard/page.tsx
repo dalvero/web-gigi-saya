@@ -10,11 +10,19 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { authService } from "@/lib/services/authService";
 import { AuthUser } from "@/lib/types/auth";
+import { articleService } from "@/lib/services/articleService";
+import { schoolService } from "@/lib/services/schoolService";
+import { studentService } from "@/lib/services/studentService";
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null); // Hanya pakai AuthUser
+  const [userCount, setUserCount] = useState<number>(0);
+  const [articleCount, setArticleCount] = useState<number>(0);
+  const [schoolCount, setSchoolCount] = useState<number>(0);
+  const [studentCount, setStudentCount] = useState<number>(0);
 
+  // FETCH USER
   useEffect(() => {
     const getUser = async () => {
       const currentUser = await authService.getCurrentUser();
@@ -29,7 +37,78 @@ export default function AdminDashboard() {
     getUser();
   }, [router]);
 
+  // MENGAMBIL JUMLAH DATA USER
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const usersData = await authService.getAll();
+        if (Array.isArray(usersData)) {
+          setUserCount(usersData.length);
+          console.log("Jumlah user:", usersData.length);
+        } else {
+          console.warn("Data user bukan array:", usersData);
+        }
+      } catch (error) {
+        console.log("Error fetching user count:", error);
+      }
+    };
+    fetchUserCount();
+  }, []);
 
+  // MENGAMBIL JUMLAH DATA ARTICLE
+  useEffect(() => {
+    const fetchArticleCount = async () => {
+      try {
+        const article = await articleService.getAll();
+        if (Array.isArray(article)) {
+          setArticleCount(article.length);
+          console.log("Jumlah artikel:", article.length);
+        } else {
+          console.warn("Data artikel bukan array:", article);
+        }
+      } catch (error) {
+        console.log("Error fetching artikel count:", error);
+      }
+    };
+    fetchArticleCount();
+  }, []);
+
+  // MENGAMBIL JUMLAH DATA SCHOOL
+  useEffect(() => {
+    const fetchSchoolCount = async () => {
+      try {
+        const schoolsData = await schoolService.getAll();
+        if (Array.isArray(schoolsData)) {
+          setSchoolCount(schoolsData.length);
+          console.log("Jumlah sekolah:", schoolsData.length);
+        } else {
+          console.warn("Data sekolah bukan array:", schoolsData);
+        }
+      } catch (error) {
+        console.log("Error fetching school count:", error);
+      }
+    };
+    fetchSchoolCount();
+  }, []);
+
+  // MENGAMBIL JUMLAH DATA STUDENT
+  useEffect(() => {
+    const fetchStudentCount = async () => {
+      try {
+        const studentsData = await studentService.getAll();
+        if (Array.isArray(studentsData)) {
+          setStudentCount(studentsData.length);
+          console.log("Jumlah siswa:", studentsData.length);
+        } else {
+          console.warn("Data siswa bukan array:", studentsData);
+        }
+      } catch (error) {
+        console.log("Error fetching student count:", error);
+      }
+    };
+    fetchStudentCount();
+  }, []);
+  
   const handleLogout = async () => {
     await supabase?.auth.signOut();
     router.push("/admin/login");
@@ -37,10 +116,10 @@ export default function AdminDashboard() {
 
   // data dummy
   const stats = [
-    { title: "Total User", value: 105 },
-    { title: "Total Artikel", value: 10 },
-    { title: "Total Produk", value: 20 },
-    { title: "Report User", value: 5 },
+    { title: "Total User", value: userCount },
+    { title: "Total Artikel", value: articleCount },
+    { title: "Total School", value: schoolCount },
+    { title: "Total Student", value: studentCount },
   ];
 
   return (
@@ -48,7 +127,7 @@ export default function AdminDashboard() {
       <Sidebar onLogout={handleLogout} />
 
       <main className="flex-1 flex flex-col">
-        <Navbar username={user?.username} email={user?.email} />
+        <Navbar username={user?.username} email={user?.email} role={user?.role} />
 
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-1">
@@ -67,13 +146,7 @@ export default function AdminDashboard() {
                 </div>
                 <p className="text-3xl font-bold text-emerald-700">
                   {item.value}
-                </p>
-                <p className="text-sm text-gray-500">
-                  <span className="text-emerald-600 font-semibold">
-                    ↑ 8.5%
-                  </span>{" "}
-                  up from yesterday
-                </p>
+                </p>                
               </div>
             ))}
           </div>

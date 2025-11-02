@@ -5,9 +5,10 @@ import React from "react";
 interface NavbarProps {
     username?: string;
     email?: string;
+    role? : string;
 }
 
-export default function Navbar({ username, email }: NavbarProps) {
+export default function Navbar({ username, email, role }: NavbarProps) {
   return (
     <header className="bg-white shadow p-4 flex justify-between items-center">
       <h1 className="text-xl font-semibold text-emerald-800">Dashboard</h1>
@@ -19,7 +20,7 @@ export default function Navbar({ username, email }: NavbarProps) {
           </div>
           <div>
             <p className="font-medium">{email}</p>
-            <p className="text-sm text-gray-500">Admin</p>
+            <p className="text-sm text-gray-500">{role}</p>
           </div>
         </div>
       )}

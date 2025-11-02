@@ -7,7 +7,7 @@
  * - "guru"     → Pengajar atau kader yang ditambahkan oleh admin.
  * - "orangtua" → User yang login menggunakan NISN anak (tanpa akun email Supabase).
  */
-export type RoleType = "admin" | "guru" | "orangtua";
+export type RoleType = "admin" | "teacher" | "student";
 
 /**
  * AuthUser
@@ -32,26 +32,6 @@ export interface AuthUser {
   created_at: string;
 }
 
-/**
- * Students
- * ----------------------------
- * Struktur data user yang disimpan di tabel `students` pada Supabase.
- * 
- * @property {string} id - UUID student dari Supabase Auth
- * @property {string} nama - Nama tampilan student
- * @property {string} [nisn] - NISN student
- * @property {string} [sekolah_id] - Sekolah student
- * @property {string} [tanggal_lahir] - Tanggal lahir student
- * @property {string} created_at - Tanggal dan waktu pembuatan akun
- */
-export interface Students {
-  id: string;
-  nama: string;
-  nisn?: string;
-  sekolah_id?: string;
-  tanggal_lahir?: string;
-  created_at: string;
-}
 
 /**
  * EmailLoginData
@@ -110,6 +90,8 @@ export interface NISNLoginData {
  */
 export interface RegisterData {
   username: string;
+  nama_depan: string;
+  nama_belakang: string;
   email: string;
   password: string;
   address?: string;

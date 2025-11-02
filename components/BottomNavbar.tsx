@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
 import { Home, FileText, Video, Stethoscope, ClipboardClock } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+
 
 export default function BottomNavbar() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function BottomNavbar() {
     { label: "Video", icon: <Video size={25} />, path: "/video" },
     { label: "Logbook", icon: <ClipboardClock size={25} />, path: "/logbook" },
   ];
+
 
   return (
     <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-emerald-800 shadow-lg py-3 flex justify-around items-center rounded-t-3xl z-50 ">
@@ -39,7 +40,7 @@ export default function BottomNavbar() {
 
       {/* TOMBOL TENGAH */}
       <button
-        onClick={() => router.push("/konsultasi")}
+        onClick={() => router.push("/periksa")}
         className={`absolute bottom-5 p-4 rounded-full shadow-lg text-white transition-transform duration-200 ${
           pathname === "/konsultasi"
             ? "bg-emerald-500 ring-4 ring-emerald-200 scale-105"

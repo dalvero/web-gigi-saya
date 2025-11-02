@@ -3,9 +3,10 @@ import {
   AuthUser,
   EmailLoginData,
   NISNLoginData,
-  RegisterData,
-  Students,
+  RegisterData,  
 } from "@/lib/types/auth";
+import { Students } from "@/lib/types/students";
+import { Teachers } from "../types/teachers";
 
 /*
  * currentStudentNISN
@@ -15,6 +16,15 @@ import {
  */
 let currentStudentNISN: string | null = 
   typeof window !== "undefined" ? localStorage.getItem("currentStudentNISN") : null;
+
+/**
+ * currentTeacherEmail
+ * ----------------------------
+ * Variabel ini menyimpan email guru yang sedang login.
+ * Nilainya diambil dari localStorage di browser, atau null di server.
+ */
+let currentTeacherEmail: string | null = 
+  typeof window !== "undefined" ? localStorage.getItem("currentTeacherEmail") : null;
 
 
 async function getSupabase(): Promise<SupabaseClient> {
@@ -47,6 +57,25 @@ async function getSupabase(): Promise<SupabaseClient> {
  */
 export const authService = {
   /**
+   * getAll()
+   * ----------------------------
+   * Mengambil semua data user dari tabel `users`
+   * 
+   * @returns {Promise<AuthUser[]>} - Daftar semua user.
+   */
+  async getAll(): Promise<AuthUser[]> {
+    const supabase = await getSupabase();
+    if (!supabase) throw new Error("Supabase client not initialized.");
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+  },
+
+  /**
    * Login untuk ADMIN atau GURU menggunakan email dan password.
    * 
    * @param {EmailLoginData} param0 - Data login berisi email dan password
@@ -63,6 +92,12 @@ export const authService = {
       password,
     });
     if (error) throw error;
+
+    currentTeacherEmail = email;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("currentTeacherEmail", email);
+    }
+
     return data;
   },
 
@@ -134,14 +169,44 @@ export const authService = {
     return data as Students;
   },
 
+  /**
+   * Mengambil data guru yang sedang login berdasarkan email.
+   */
+  async getCurrentTeachers(): Promise<Teachers | null> {
+    if (!currentTeacherEmail && typeof window !== "undefined") {
+      currentTeacherEmail = localStorage.getItem("currentTeacherEmail");
+    }
+    if (!currentTeacherEmail) return null;
+
+    const supabase = await getSupabase();
+    const { data, error } = await supabase
+      .from("teachers")
+      .select("*")
+      .eq("email", currentTeacherEmail)
+      .single();
+
+    if (error || !data) return null;
+    return data as Teachers;  
+  },
+
 
   /**
    * Logout siswa (hapus NISN tersimpan).
    */
-  logoutStudent() {
+  logoutStudents() {
     currentStudentNISN = null;
     if (typeof window !== "undefined") {
       localStorage.removeItem("currentStudentNISN");
+    }
+  },
+
+  /**
+   * Logout guru (hapus email tersimpan).
+   */
+  logoutTeachers() {
+    currentTeacherEmail = null;
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("currentTeacherEmail");
     }
   },
 
@@ -168,14 +233,26 @@ export const authService = {
    */
   async registerUser(userData: RegisterData) {
     const supabase = await getSupabase();
-    const { email, password, username, address, city, role } = userData;
+    const {
+      email,
+      password,
+      username,
+      nama_depan,
+      nama_belakang,
+      address,
+      city,
+      role,
+    } = userData as RegisterData & {
+      nama_depan?: string;
+      nama_belakang?: string;
+    };
 
-    // 1. Tentukan redirect URL sesuai role
+    // TENTUKAN REDIRECT URL SESUAI ROLE
     let redirectUrl = `${window.location.origin}/app/login`;
     if (role === "admin") redirectUrl = `${window.location.origin}/admin/login`;
-    if (role === "guru") redirectUrl = `${window.location.origin}/guru/login`;
+    if (role === "teacher") redirectUrl = `${window.location.origin}/guru/login`;
 
-    // 2. Buat akun di Supabase Auth
+    // BUAT AKUN DI SUPABASE AUTH
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -184,9 +261,8 @@ export const authService = {
       },
     });
 
-    if (error) throw new Error(`Gagal membuat akun: ${error.message}`);
-
-    // 3. Simpan detail tambahan di tabel users
+    if (error) throw new Error(`Gagal membuat akun: ${error.message}`);    
+    // SIMPAN DETAIL TAMBAHAN DI TABEL USERS
     const userId = data.user?.id;
     if (!userId) throw new Error("Gagal mendapatkan ID user dari Supabase Auth.");
 
@@ -202,11 +278,55 @@ export const authService = {
       },
     ]);
 
-    if (insertError)
-      throw new Error(`Gagal menyimpan data user: ${insertError.message}`);
+    // DEBUG DISINI
+    // console.log(insertError);
 
+    if (insertError)
+      throw new Error(`Gagal menyimpan data user: ${insertError.message}`);    
+
+    // JIKA ROLE = "admin", SIMPAN JUGA KE TABEL ADMIN
+    if (role === "admin") {
+      const { error: adminError } = await supabase.from("admins").insert([
+        {
+          nama_depan: nama_depan ?? "",
+          nama_belakang: nama_belakang ?? "",
+          email,
+          address: address || null,
+          city: city || null,
+          role: "admin",
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (adminError)
+      throw new Error(
+        `Gagal menyimpan data ke tabel admins: ${adminError.message}`
+      );
+    }
+
+    // JIKA ROLE = "guru", SIMPAN JUGA KE TABEL GURU
+    if (role === "teacher") {
+      const { error: guruError } = await supabase.from("teachers").insert([
+        {
+          nama_depan: nama_depan ?? "",
+          nama_belakang: nama_belakang ?? "",
+          email,
+          address: address || null,
+          city: city || null,
+          role: "teacher",
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (guruError)
+      throw new Error(
+        `Gagal menyimpan data ke tabel guru: ${guruError.message}`
+      )
+    }    
     return data;
   },
+
+
 
   /**
    * Mendapatkan data user yang sedang login.

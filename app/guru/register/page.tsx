@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/services/authService";
+import InputField from "@/components/InputField";
 
 /**
  * Halaman registrasi untuk ADMIN.
@@ -39,16 +40,16 @@ export default function AdminRegisterPage() {
     try {
       await authService.registerUser({
         username,
-        nama_depan: namaDepan, 
-        nama_belakang: namaBelakang, 
+        nama_depan: namaDepan, // DEFAULT NULL
+        nama_belakang: namaBelakang, // DEFAULT NULL
         email,
         password,
         address: "", // DEFAULT NULL
         city: "", // DEFAULT NULL
-        role: "admin", // ROLE OTOMATIS ADMIN
+        role: "teacher", // ROLE OTOMATIS ADMIN
       });
 
-      router.push("/admin/login");
+      router.push("/guru/login");
     } catch (err) {
       setErrorMsg("Terjadi kesalahan saat registrasi.");
     } finally {
@@ -68,10 +69,10 @@ export default function AdminRegisterPage() {
         className="bg-white px-8 rounded-lg shadow-md w-110"
       >
         <h1 className="text-2xl font-bold text-center mb-2 mt-2 text-emerald-800">
-          Buat Akun Admin
+          Buat Akun Guru
         </h1>
         <p className="text-center text-gray-500 text-sm mb-4 font-medium">
-          Ayo buat Akun Admin terlebih dahulu.
+          Ayo buat Akun Guru terlebih dahulu.
         </p>
 
         {/* PESAN ERROR */}
@@ -170,7 +171,7 @@ export default function AdminRegisterPage() {
           Sudah punya akun?{" "}
           <button
             type="button"
-            onClick={() => router.push("/admin/login")}
+            onClick={() => router.push("/guru/login")}
             className="text-gray-500 font-medium cursor-pointer hover:text-emerald-800"
           >
             Masuk di sini

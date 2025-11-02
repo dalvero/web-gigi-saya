@@ -4,27 +4,29 @@ import { useState, useEffect, useMemo } from "react";
 import { Search, Edit, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { studentService } from "@/lib/services/studentService";
 import { schoolService } from "@/lib/services/schoolService";
-import { Student } from "@/lib/types/students";
+import { Students } from "@/lib/types/students";
 import { School } from "@/lib/types/schools";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import Swal from "sweetalert2";
 
 export default function ManajemenStudents() {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<Students[]>([]);
   const [schools, setSchools] = useState<School[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [editingStudent, setEditingStudent] = useState<Students | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const [newStudent, setNewStudent] = useState<Student>({
-    nama: "",
+  const [newStudent, setNewStudent] = useState<Students>({
+    nama_depan: "",
+    nama_belakang: "",
     nisn: "",
     sekolah_id: "",
     tanggal_lahir: "",
+    role: "student",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const studentsPerPage = 10;
@@ -49,7 +51,7 @@ export default function ManajemenStudents() {
 
   // ADD STUDENT 
   const handleAddStudent = async () => {
-    if (!newStudent.nama || !newStudent.nisn || !newStudent.sekolah_id || !newStudent.tanggal_lahir) {
+    if (!newStudent.nama_depan || !newStudent.nama_belakang || !newStudent.nisn || !newStudent.sekolah_id || !newStudent.tanggal_lahir) {
       Swal.fire({
         icon: "warning",
         title: "Data belum lengkap",
@@ -61,15 +63,18 @@ export default function ManajemenStudents() {
 
     try {
       await studentService.add({
-        nama: newStudent.nama,
+        nama_depan: newStudent.nama_depan,
+        nama_belakang: newStudent.nama_belakang,
         nisn: newStudent.nisn,
         sekolah_id: newStudent.sekolah_id,
         tanggal_lahir: newStudent.tanggal_lahir,
+        role: newStudent.role,
       });
 
       const updatedStudents = await studentService.getAll();
       setStudents(updatedStudents);
-      setNewStudent({ nama: "", nisn: "", sekolah_id: "", tanggal_lahir: "" });
+      setNewStudent({ nama_depan: "", nama_belakang: "", nisn: "", sekolah_id: "", tanggal_lahir: "", role: "student" }); 
+
       setIsModalOpen(false);
 
       Swal.fire({
@@ -127,7 +132,8 @@ export default function ManajemenStudents() {
 
     try {
       await studentService.update(editingStudent.id!, {
-        nama: editingStudent.nama,
+        nama_depan: editingStudent.nama_depan,
+        nama_belakang: editingStudent.nama_belakang,
         nisn: editingStudent.nisn,
         sekolah_id: editingStudent.sekolah_id,
         tanggal_lahir: editingStudent.tanggal_lahir,
@@ -153,7 +159,7 @@ export default function ManajemenStudents() {
     }
   };
 
-  const handleEditClick = (student: Student) => {
+  const handleEditClick = (student: Students) => {
     setEditingStudent(student);
     setIsEditModalOpen(true);
   };
@@ -162,7 +168,8 @@ export default function ManajemenStudents() {
   const filteredStudents = useMemo(() => {
     return students.filter(
       (s) =>
-        s.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.nama_depan.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.nama_belakang.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.nisn.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [students, searchTerm]);
@@ -233,12 +240,12 @@ export default function ManajemenStudents() {
                     <td className="py-4 px-4 flex items-center gap-3">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${getRandomColor(
-                          student.nama
+                          student.nama_depan + student.nama_belakang
                         )}`}
                       >
-                        {student.nama[0]}
+                        {student.nama_depan[0]}
                       </div>
-                      <span className="font-medium text-gray-800">{student.nama}</span>
+                      <span className="font-medium text-gray-800">{student.nama_depan + " " + student.nama_belakang}</span>
                     </td>
                     <td className="py-4 px-4 text-gray-700">{student.nisn}</td>
                     <td className="py-4 px-4 text-gray-700">{student.tanggal_lahir}</td>
@@ -303,9 +310,16 @@ export default function ManajemenStudents() {
             <div className="flex flex-col gap-4">
               <input
                 type="text"
-                placeholder="Nama"
-                value={newStudent.nama}
-                onChange={(e) => setNewStudent({ ...newStudent, nama: e.target.value })}
+                placeholder="Nama Depan"
+                value={newStudent.nama_depan}
+                onChange={(e) => setNewStudent({ ...newStudent, nama_depan: e.target.value })}
+                className="border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-teal-500"
+              />
+              <input
+                type="text"
+                placeholder="Nama Belakang"
+                value={newStudent.nama_belakang}
+                onChange={(e) => setNewStudent({ ...newStudent, nama_belakang: e.target.value })}
                 className="border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-teal-500"
               />
               <input
@@ -363,10 +377,19 @@ export default function ManajemenStudents() {
             <div className="flex flex-col gap-4">
               <input
                 type="text"
-                placeholder="Nama"
-                value={editingStudent.nama}
+                placeholder="Nama Depan"
+                value={editingStudent.nama_depan}
                 onChange={(e) =>
-                  setEditingStudent({ ...editingStudent, nama: e.target.value })
+                  setEditingStudent({ ...editingStudent, nama_depan: e.target.value })
+                }
+                className="border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-teal-500"
+              />
+              <input
+                type="text"
+                placeholder="Nama Belakang"
+                value={editingStudent.nama_belakang}
+                onChange={(e) =>
+                  setEditingStudent({ ...editingStudent, nama_belakang: e.target.value })
                 }
                 className="border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring-2 focus:ring-teal-500"
               />
